@@ -1,0 +1,9 @@
+F:\c#\PiotrBachurSudoku\PiotrBachurSudoku\bin\Debug\PiotrBachurSudoku.exe.config
+F:\c#\PiotrBachurSudoku\PiotrBachurSudoku\bin\Debug\PiotrBachurSudoku.exe
+F:\c#\PiotrBachurSudoku\PiotrBachurSudoku\bin\Debug\PiotrBachurSudoku.pdb
+F:\c#\PiotrBachurSudoku\PiotrBachurSudoku\obj\Debug\PiotrBachurSudoku.csprojResolveAssemblyReference.cache
+F:\c#\PiotrBachurSudoku\PiotrBachurSudoku\obj\Debug\PiotrBachurSudoku.Properties.Resources.resources
+F:\c#\PiotrBachurSudoku\PiotrBachurSudoku\obj\Debug\PiotrBachurSudoku.csproj.GenerateResource.Cache
+F:\c#\PiotrBachurSudoku\PiotrBachurSudoku\obj\Debug\PiotrBachurSudoku.exe
+F:\c#\PiotrBachurSudoku\PiotrBachurSudoku\obj\Debug\PiotrBachurSudoku.pdb
+F:\c#\PiotrBachurSudoku\PiotrBachurSudoku\obj\Debug\PiotrBachurSudoku.filledBox.resources
