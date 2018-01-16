@@ -52,14 +52,23 @@ namespace PiotrBachurSudoku
         String solution;
         bool checkValues = true;
         Random rnd = new Random();
+        bool hasErrors = false;
 
         public Form1 ()
         {
             InitializeComponent();
 
-            this.ClientSize = new Size(642, 642 + menuStrip1.Size.Height);
+            int screenHeight = SystemInformation.VirtualScreen.Height;
+            int maxSize = screenHeight - 200;
+            int spaceingSmall = 1;
+            int spaceingLarge = 3;
+            maxSize = maxSize / 9 * 9;
+            int singleBoxSize = maxSize / 9;
+            maxSize += 2 * spaceingLarge + 4 * spaceingSmall;
+
+            this.ClientSize = new Size(maxSize, maxSize + menuStrip1.Size.Height);
             Panel backgroundMain = new Panel();
-            backgroundMain.Size = new Size(642, 642 + menuStrip1.Size.Height);
+            backgroundMain.Size = new Size(maxSize, maxSize + menuStrip1.Size.Height);
             backgroundMain.Location = new Point(0, menuStrip1.Size.Height);
             backgroundMain.BackColor = Color.Black;
             this.Controls.Add(backgroundMain);
@@ -78,10 +87,11 @@ namespace PiotrBachurSudoku
 
             for (int y = 0; y < 3; y++) {
                 for (int x = 0; x < 3; x++) {
-                    Point subBackgroundOriginPoint = new Point(x * 215, y * 215);
+                    int subBackgroundSize = singleBoxSize * 3 + spaceingSmall * 2;
+                    Point subBackgroundOriginPoint = new Point(x * (subBackgroundSize + spaceingLarge), y * (subBackgroundSize + spaceingLarge));
 
                     Panel secondaryBackground = new Panel();
-                    secondaryBackground.Size = new Size(212, 212);
+                    secondaryBackground.Size = new Size(subBackgroundSize, subBackgroundSize);
                     secondaryBackground.Location = subBackgroundOriginPoint;
                     secondaryBackground.BackColor = Color.LightGray;
                     subPanels[x + y * 3].panel = secondaryBackground;
@@ -94,13 +104,13 @@ namespace PiotrBachurSudoku
                             inputField.TabIndex = innerX + innerY * 3 + x * 9 + y * 27;
                             inputField.BorderStyle = BorderStyle.None;
                             inputField.TextAlign = HorizontalAlignment.Center;
-                            inputField.MinimumSize = new Size(70, 70);
-                            inputField.Size = new Size(70, 70);
-                            inputField.Location = new Point(innerX * 71, innerY * 71);
+                            inputField.MinimumSize = new Size(singleBoxSize, singleBoxSize);
+                            inputField.Size = new Size(singleBoxSize, singleBoxSize);
+                            inputField.Location = new Point(innerX * (singleBoxSize + spaceingSmall), innerY * (singleBoxSize + spaceingSmall));
                             inputField.MaxLength = 1;
                             inputField.KeyPress += this.checkCharInput;
                             inputField.TextChanged += this.checkValueOnInput;
-                            inputField.Font = new Font("Microsoft Sans Serif", 50, FontStyle.Regular, GraphicsUnit.Pixel, ((byte)(238)));
+                            inputField.Font = new Font("Microsoft Sans Serif", singleBoxSize - 15, FontStyle.Regular, GraphicsUnit.Pixel, ((byte)(238)));
 
                             int subPanelIndex = x + y * 3;
                             int lineIndex = innerY + y * 3;
@@ -170,14 +180,7 @@ namespace PiotrBachurSudoku
         {
             foreach (TextBox textBox in list) {
                 if (textBox.BackColor != colorToSkip) {
-                    if (textBox.Tag.ToString()[3] == 'U') {
-                        textBox.BackColor = color;
-                    } else {
-                        Color colorToSet = textBox.BackColor;
-                        int argbColor = textBox.BackColor.ToArgb();
-                        argbColor = (argbColor & 0x7F00FFFF) | (color.ToArgb() & 0x00FF0000);
-                        textBox.BackColor = Color.FromArgb(argbColor);
-                    }
+                   textBox.BackColor = color;
                 }
             }
         }
@@ -191,20 +194,41 @@ namespace PiotrBachurSudoku
 
         public void clearColors ()
         {
+            hasErrors = false;
+
             foreach (TextBox textBox in allFields) {
                 if (textBox.Tag.ToString()[3] == 'U') {
                     textBox.BackColor = Color.White;
+                } else {
+                    textBox.BackColor = Color.LightBlue;
                 }
             }
         }
 
         public void checkAllFieldsForErrors ()
         {
+            bool fullyFilled = true;
+
             foreach (TextBox textBox in allFields) {
                 int value = this.extractValue(textBox);
 
                 if (value != 0) {
                     this.validateField(textBox, value);
+                } else {
+                    fullyFilled = false;
+                }
+            }
+
+            if (fullyFilled && !hasErrors) {
+                string message = "Congratulations! Play again?";
+                string caption = "You won!";
+                MessageBoxButtons buttons = MessageBoxButtons.YesNo;
+                DialogResult result;
+                result = MessageBox.Show(message, caption, buttons);
+
+                if (result == System.Windows.Forms.DialogResult.Yes) {
+                    this.clearFields();
+                    this.generateSolvable();
                 }
             }
         }
@@ -224,6 +248,8 @@ namespace PiotrBachurSudoku
 
                 checkResult.offenders.Add(inputField);
                 this.colorBoxes(checkResult.offenders, Color.DarkRed, Color.DarkOrchid);
+
+                hasErrors = true;
             }
         }
 
@@ -359,7 +385,7 @@ namespace PiotrBachurSudoku
             return result;
         }
 
-        public void generateSolvable ()
+        public void generateSolvable()
         {
             checkValues = false;
 
@@ -498,12 +524,19 @@ namespace PiotrBachurSudoku
 
         private void solutionToolStripMenuItem_Click (object sender, EventArgs e)
         {
-            this.clearFields();
+            if (solution != "" && solution != null) {
+                this.clearColors();
 
-            int offset = 0;
-            foreach (TextBox textBox in allFields) {
-                textBox.Text = solution[offset].ToString();
-                offset++;
+                int offset = 0;
+                foreach (TextBox textBox in allFields) {
+                    textBox.Text = solution[offset].ToString();
+                    offset++;
+                }
+            } else {
+                string message = "Board was not generated either load a board or generate new";
+                string caption = "No board";
+                MessageBoxButtons buttons = MessageBoxButtons.OK;
+                MessageBox.Show(message, caption, buttons);
             }
         }
     }
